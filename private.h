@@ -20,6 +20,7 @@
 #define DROID_MEDIA_PRIVATE_H
 
 #include "droidmedia.h"
+#include <string>
 #include <gui/BufferQueue.h>
 #include <camera/Camera.h>
 #if ANDROID_MAJOR >= 9 && ANDROID_MAJOR <= 10
@@ -75,6 +76,9 @@ public:
   void attachToCameraVideo(android::sp<android::Camera>& camera);
   ANativeWindow *window();
 
+  void setDefaultBufferSize(uint32_t width, uint32_t height);
+  void setDefaultBufferFormat(int32_t format);
+
   void releaseMediaBuffer(DroidMediaBuffer *buffer, EGLDisplay dpy, EGLSyncKHR fence);
 
   void setCallbacks(DroidMediaBufferQueueCallbacks *cb, void *data);
@@ -105,7 +109,16 @@ private:
 
 };
 
+#ifdef DROIDMEDIA_CAMERA2
+struct ANativeWindow;
+ANativeWindow *droid_media_camera2_get_video_surface(DroidMediaCamera *camera);
+bool droid_media_camera2_configure_video(DroidMediaCamera *camera, int32_t width, int32_t height);
+bool droid_media_camera2_start_video(DroidMediaCamera *camera);
+void droid_media_camera2_stop_video(DroidMediaCamera *camera);
+#else
 android::sp<android::Camera> droid_media_camera_get_camera(DroidMediaCamera *camera);
+#endif
+bool droid_media_camera_get_id(int camera_number, std::string *id);
 android::sp<android::MediaSource> droid_media_codec_create_encoder_raw(DroidMediaCodecEncoderMetaData *meta,
 #if ANDROID_MAJOR >=5
 							      android::sp<android::ALooper> looper,
